@@ -13,3 +13,5 @@ CREATE TABLE IF NOT EXISTS transactions (
     description TEXT,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_transactions_account ON transactions(account_id);

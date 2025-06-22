@@ -8,6 +8,10 @@ const { checkJwt } = require('./config/keycloak');
 const accountsRoutes = require('./routes/accounts');
 const transactionsRoutes = require('./routes/transactions');
 
+const { requireRole } = require('./config/roles');
+const adminRoutes = require('./routes/admin'); 
+const pool = require('./config/db');
+
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:4200', credentials: true }));
@@ -43,6 +47,14 @@ app.use(
   },
   transactionsRoutes
 );
+
+app.get('/api/profile', checkJwt, (req, res) => { 
+  const { sub, preferred_username, email, given_name, family_name } = req.auth;
+  res.json({ userId: sub, username: preferred_username, email, givenName: given_name, familyName: family_name });
+});
+
+// Routes admin
+app.use('/api/admin', checkJwt, requireRole('admin'), adminRoutes);
 
 // errors server or JWT 
 app.use((err, req, res, next) => {
