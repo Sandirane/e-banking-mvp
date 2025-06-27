@@ -1,11 +1,26 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import Keycloak from 'keycloak-js';
+
+interface Action {
+  title: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-menu',
-  imports: [],
+  imports: [CommonModule, RouterLink],
   templateUrl: './menu.component.html',
-  styleUrl: './menu.component.scss'
+  styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
+  public keycloak = inject(Keycloak);
 
+  actions: Array<Action> = [{ title: 'Home', route: '/home' }];
+
+  logout() {
+    this.keycloak.logout();
+  }
 }

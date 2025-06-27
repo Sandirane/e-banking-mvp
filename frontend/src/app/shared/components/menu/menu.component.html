@@ -1,1 +1,15 @@
-<p>menu works!</p>
+
+    <ul>
+        @for(action of actions; track action) {
+        <li>
+            <button routerLink="{{action.route}}">
+                {{action.title}}
+            </button>
+        </li>
+        }
+        <li>
+            <button type="button" (click)="logout()">
+                Logout
+            </button>
+        </li>
+    </ul>
