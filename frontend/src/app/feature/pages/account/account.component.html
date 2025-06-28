@@ -1,0 +1,18 @@
+<h2>Mes Comptes</h2>
+
+@if(isLoading) {
+<div>Chargement…</div>
+} 
+@if(!isLoading && errorMessage) {
+<div>{{ errorMessage }}</div>
+}
+
+<ul *ngIf="accounts$ | async as accounts">
+  @for(account of accounts; track account) {
+  <li>
+    ID: {{ account.id }}, USER ID: {{ account.user_id }}, Solde:
+    {{ account.balance }} €, Currency: {{ account.currency }}, Created DATE:
+    {{ account.created_at }}
+  </li>
+  }
+</ul>

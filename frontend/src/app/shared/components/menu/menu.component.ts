@@ -18,7 +18,11 @@ interface Action {
 export class MenuComponent {
   public keycloak = inject(Keycloak);
 
-  actions: Array<Action> = [{ title: 'Home', route: '/home' }];
+  actions: Array<Action> = [
+    { title: 'Home', route: '/home' },
+    { title: 'Comptes', route: '/accounts' },
+    { title: 'Transactions', route: '/transactions' },
+  ];
 
   logout() {
     this.keycloak.logout();

@@ -1,0 +1,11 @@
+<h2>Mes Transactions</h2>
+
+<ul *ngIf="transactions$ | async as transactions">
+  @for(transaction of transactions; track transaction) {
+  <li>
+    ID: {{ transaction.id }}, Account ID: {{ transaction.account_id }}, Amount:
+    {{ transaction.amount }}, Type: {{ transaction.type }}, Description:
+    {{ transaction.description }}, Created DATE: {{ transaction.created_at }},
+  </li>
+  }
+</ul>
