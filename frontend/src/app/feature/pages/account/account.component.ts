@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { AccountService } from '@core/services/account.service';
 import { tap, catchError, of, finalize } from 'rxjs';
-import { Component, inject } from '@angular/core';  
+import { Component, inject } from '@angular/core';
 
 @Component({
   selector: 'app-account',
@@ -14,15 +14,12 @@ export class AccountComponent {
   isLoading = true;
   errorMessage: string | null = null;
 
-  accounts$ = this.accountService.getAccounts()
-  
-  .pipe(
+  accounts$ = this.accountService.getAccounts().pipe(
     tap(() => (this.errorMessage = null)),
-    catchError((err) => { 
+    catchError((err) => {
       this.errorMessage = 'Impossible de charger les comptes.';
       return of([]);
     }),
     finalize(() => (this.isLoading = false))
   );
-
 }
