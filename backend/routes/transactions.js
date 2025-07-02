@@ -1,65 +1,78 @@
 const express = require('express');
-const router = express.Router();
 const pool = require('../config/db');
-const { query, body, validationResult } = require('express-validator');
+const router  = express.Router();
+const { query, body, param, validationResult } = require('express-validator');
+
+// Check account user
+async function checkTxOwnership(req, res, next) {
+  const txId   = parseInt(req.params.id, 10);
+  const userId = req.auth.sub;
+  try {
+    const { rowCount } = await pool.query(
+      `SELECT 1
+       FROM transactions t
+       JOIN accounts a ON a.id = t.account_id
+       WHERE t.id = $1 AND a.user_id = $2`,
+      [txId, userId]
+    );
+    if (!rowCount) return res.status(403).json({ error: 'Non autorisé' });
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+}
 
 // GET /api/transactions?account_id=...
 router.get(
   '/',
-  [
-    query('account_id').optional().isInt({ gt: 0 }).withMessage('account_id doit être un entier positif'),
-  ],
-  async (req, res) => { 
+  [ query('account_id').optional().isInt({ gt: 0 }) ],
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const userId = req.auth && req.auth.sub;
-    if (!userId) {
-      return res.status(401).json({ error: 'Token manquant ou invalide' });
-    }
-
+    if (!req.auth) return res.status(401).json({ error: 'Token manquant ou invalide' });
+    const userId = req.auth.sub;
     const accountId = req.query.account_id ? parseInt(req.query.account_id, 10) : null;
 
     try {
-      if (accountId) {
-        const accountRes = await pool.query(
-          'SELECT id FROM accounts WHERE id = $1 AND user_id = $2',
+      if (accountId) { 
+        const { rowCount } = await pool.query(
+          'SELECT 1 FROM accounts WHERE id = $1 AND user_id = $2',
           [accountId, userId]
         );
-        if (accountRes.rows.length === 0) {
+        if (!rowCount) {
           return res.status(403).json({ error: 'Compte non autorisé ou introuvable.' });
-        } 
-        const txRes = await pool.query(
+        }
+        const txs = await pool.query(
           `SELECT id, account_id, amount, type, description, created_at
            FROM transactions
            WHERE account_id = $1
            ORDER BY created_at DESC`,
           [accountId]
         );
-        return res.json(txRes.rows);
-      } else { 
-        const accountsRes = await pool.query(
-          'SELECT id FROM accounts WHERE user_id = $1',
-          [userId]
-        );
-        const accountIds = accountsRes.rows.map(r => r.id);
-        if (accountIds.length === 0) {
-          return res.json([]); 
-        }
-        const txRes = await pool.query(
-          `SELECT id, account_id, amount, type, description, created_at
-           FROM transactions
-           WHERE account_id = ANY($1)
-           ORDER BY created_at DESC`,
-          [accountIds]
-        );
-        return res.json(txRes.rows);
+        return res.json(txs.rows);
       }
+ 
+      const accountsRes = await pool.query(
+        'SELECT id FROM accounts WHERE user_id = $1',
+        [userId]
+      );
+      const ids = accountsRes.rows.map(r => r.id);
+      if (ids.length === 0) return res.json([]);
+
+      const txs = await pool.query(
+        `SELECT id, account_id, amount, type, description, created_at
+         FROM transactions
+         WHERE account_id = ANY($1)
+         ORDER BY created_at DESC`,
+        [ids]
+      );
+      res.json(txs.rows);
     } catch (err) {
-      console.error('Error fetching transactions:', err);
-      return res.status(500).json({ error: 'Erreur interne lors de la récupération des transactions.' });
+      console.error(err);
+      res.status(500).json({ error: 'Erreur interne lors de la récupération.' });
     }
   }
 );
@@ -68,78 +81,83 @@ router.get(
 router.post(
   '/',
   [
-    body('account_id').isInt({ gt: 0 }).withMessage('account_id doit être un entier positif'),
-    body('type').isIn(['deposit', 'withdraw']).withMessage("type doit être 'deposit' ou 'withdraw'"),
-    body('amount').isFloat({ gt: 0 }).withMessage('amount doit être un nombre > 0'),
-    body('description').optional().isString().withMessage('description doit être une chaîne'),
+    body('account_id').isInt({ gt: 0 }),
+    body('type').isIn(['deposit','withdraw']),
+    body('amount').isFloat({ gt: 0 }),
+    body('description').optional().isString()
   ],
-  async (req, res) => { 
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    if (!req.auth) return res.status(401).json({ error: 'Token manquant ou invalide' });
 
-    const userId = req.auth && req.auth.sub;
-    if (!userId) {
-      return res.status(401).json({ error: 'Token manquant ou invalide' });
-    }
-
+    const userId    = req.auth.sub;
     const accountId = parseInt(req.body.account_id, 10);
-    const type = req.body.type;
-    const amount = parseFloat(req.body.amount);
-    const description = req.body.description || null;
+    const { type, amount, description = null } = req.body;
 
-    const client = await pool.connect();
     try { 
-      const accountRes = await client.query(
-        'SELECT id, balance FROM accounts WHERE id = $1 AND user_id = $2 FOR UPDATE',
-        [accountId, userId]
+      const { rowCount } = await pool.query(
+        'SELECT 1 FROM accounts WHERE id = $1 AND user_id = $2',
+        [accountId,userId]
       );
-      if (accountRes.rows.length === 0) {
+      if (!rowCount) {
         return res.status(403).json({ error: 'Compte non autorisé ou introuvable.' });
       }
-      const currentBalance = parseFloat(accountRes.rows[0].balance);
  
-      let newBalance;
-      if (type === 'deposit') {
-        newBalance = currentBalance + amount;
-      } else { 
-        if (currentBalance < amount) {
-          return res.status(400).json({ error: 'Solde insuffisant pour le retrait.' });
-        }
-        newBalance = currentBalance - amount;
-      }
- 
-      await client.query('BEGIN'); 
-      await client.query(
-        'UPDATE accounts SET balance = $1 WHERE id = $2',
-        [newBalance, accountId]
-      ); 
-      const insertRes = await client.query(
+      const { rows } = await pool.query(
         `INSERT INTO transactions (account_id, amount, type, description)
-         VALUES ($1, $2, $3, $4)
+         VALUES ($1,$2,$3,$4)
          RETURNING id, account_id, amount, type, description, created_at`,
         [accountId, amount, type, description]
       );
-      await client.query('COMMIT');
-
-      const tx = insertRes.rows[0];
-      return res.status(201).json({
-        transaction: tx,
-        newBalance: newBalance
-      });
-    } catch (err) { 
-      try {
-        await client.query('ROLLBACK');
-      } catch (rbErr) {
-        console.error('Rollback error:', rbErr);
-      }
-      console.error('Error creating transaction:', err);
-      return res.status(500).json({ error: 'Erreur interne lors de la création de la transaction.' });
-    } finally {
-      client.release();
+      res.status(201).json(rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Erreur interne lors de la création.' });
     }
   }
 );
+
+// PUT /api/transactions/:id
+router.put(
+  '/:id',
+  checkTxOwnership,
+  [
+    param('id').isInt(),
+    body('amount').optional().isFloat({ gt: 0 }),
+    body('description').optional().isString()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const txId        = parseInt(req.params.id, 10);
+    const { amount, description } = req.body;
+    try {
+      const { rows } = await pool.query(
+        'UPDATE transactions SET amount = COALESCE($1, amount), description = COALESCE($2, description) WHERE id = $3 RETURNING *',
+        [amount, description, txId]
+      );
+      res.json(rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// DELETE /api/transactions/:id
+router.delete('/:id', checkTxOwnership, async (req, res) => {
+  const txId = parseInt(req.params.id, 10);
+  try {
+    await pool.query('DELETE FROM transactions WHERE id = $1', [txId]);
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
