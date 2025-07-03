@@ -1,15 +1,21 @@
+<h1>
+  {{keycloak.tokenParsed?.['preferred_username']}}
+</h1>
 
-    <ul>
-        @for(action of actions; track action) {
-        <li>
-            <button routerLink="{{action.route}}">
-                {{action.title}}
-            </button>
-        </li>
-        }
-        <li>
-            <button type="button" (click)="logout()">
-                Logout
-            </button>
-        </li>
-    </ul>
+<ul>
+  @if (keycloak.hasRealmRole('user')) { @for(action of actions; track action) {
+  <li>
+    <button routerLink="{{ action.route }}">
+      {{ action.title }}
+    </button>
+  </li>
+  } } @if (keycloak.hasRealmRole('admin')) {
+  <li>
+    <button routerLink="/dashboard">Dashboard</button>
+  </li>
+  }
+
+  <li>
+    <button type="button" (click)="logout()">Logout</button>
+  </li>
+</ul>

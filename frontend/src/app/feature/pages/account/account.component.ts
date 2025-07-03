@@ -22,4 +22,15 @@ export class AccountComponent {
     }),
     finalize(() => (this.isLoading = false))
   );
+
+  addAccount() {
+    this.accountService
+      .createAccount({ balance: 100, currency: 'EUR' })
+      .subscribe((newAcc) => {});
+  }
+
+  removeAccount(id: number) {
+    this.accountService.deleteAccount(id).subscribe(() => {});
+  }
+  
 }

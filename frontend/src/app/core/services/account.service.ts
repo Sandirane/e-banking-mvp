@@ -14,6 +14,22 @@ export class AccountService {
 
   getAccounts(): Observable<Account[]> {
     return this.http.get<Account[]>(this.apiUrl);
+  } 
+
+  getAccount(id: number): Observable<Account> {
+    return this.http.get<Account>(`${this.apiUrl}/${id}`);
+  }
+ 
+  createAccount(payload: { balance?: number; currency?: string }): Observable<Account> {
+    return this.http.post<Account>(this.apiUrl, payload);
+  }
+ 
+  updateAccount(id: number, updates: { currency: string }): Observable<Account> {
+    return this.http.put<Account>(`${this.apiUrl}/${id}`, updates);
+  }
+ 
+  deleteAccount(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
   
 }

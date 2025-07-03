@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from '@core/guards/admin.guard';
 import { AccountComponent } from '@feature/pages/account/account.component';
+import { DashboardComponent } from '@feature/pages/dashboard/dashboard.component';
 import { HomeComponent } from '@feature/pages/home/home.component';
 import { NotautorizedComponent } from '@feature/pages/notautorized/notautorized.component';
 import { PagenotfoundComponent } from '@feature/pages/pagenotfound/pagenotfound.component';
@@ -9,6 +11,13 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'accounts', component: AccountComponent },
   { path: 'transactions', component: TransactionComponent },
+
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [adminGuard],
+    data: { role: 'admin' },
+  },
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'notauthorized', component: NotautorizedComponent },

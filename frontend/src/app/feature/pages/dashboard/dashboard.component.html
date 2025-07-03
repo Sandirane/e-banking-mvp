@@ -1,0 +1,29 @@
+<h2>Dashboard Admin</h2>
+<section>
+  <h3>Comptes</h3>
+  @if(accounts) {
+  <ul>
+    @for(a of accounts; track a) {
+    <li>
+      {{ a.id }} - {{ a.user_id }} - {{ a.currency }} - {{ a.created_at }}
+      <button (click)="onDeleteAccount(a.id)">Supprimer</button>
+    </li>
+    }
+  </ul>
+  }
+</section>
+
+<section>
+  <h3>Transactions</h3>
+  @if(transactions) {
+  <ul>
+    @for(t of transactions; track t) {
+    <li>
+      {{ t.id }} - Acc:{{ t.account_id }} - {{ t.type }} {{ t.amount }}€ -
+      {{ t.created_at }}
+      <button (click)="onDeleteTransaction(t.id)">Supprimer</button>
+    </li>
+    }
+  </ul>
+  }
+</section>
