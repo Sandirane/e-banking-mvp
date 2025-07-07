@@ -1,11 +1,11 @@
 const express = require('express');
 const pool = require('../config/db');
-const router  = express.Router();
+const router = express.Router();
 const { query, body, param, validationResult } = require('express-validator');
 
 // Check account user
 async function checkTxOwnership(req, res, next) {
-  const txId   = parseInt(req.params.id, 10);
+  const txId = parseInt(req.params.id, 10);
   const userId = req.auth.sub;
   try {
     const { rowCount } = await pool.query(
@@ -26,7 +26,7 @@ async function checkTxOwnership(req, res, next) {
 // GET /api/transactions?account_id=...
 router.get(
   '/',
-  [ query('account_id').optional().isInt({ gt: 0 }) ],
+  [query('account_id').optional().isInt({ gt: 0 })],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -37,7 +37,7 @@ router.get(
     const accountId = req.query.account_id ? parseInt(req.query.account_id, 10) : null;
 
     try {
-      if (accountId) { 
+      if (accountId) {
         const { rowCount } = await pool.query(
           'SELECT 1 FROM accounts WHERE id = $1 AND user_id = $2',
           [accountId, userId]
@@ -54,7 +54,7 @@ router.get(
         );
         return res.json(txs.rows);
       }
- 
+
       const accountsRes = await pool.query(
         'SELECT id FROM accounts WHERE user_id = $1',
         [userId]
@@ -82,7 +82,7 @@ router.post(
   '/',
   [
     body('account_id').isInt({ gt: 0 }),
-    body('type').isIn(['deposit','withdraw']),
+    body('type').isIn(['deposit', 'withdraw']),
     body('amount').isFloat({ gt: 0 }),
     body('description').optional().isString()
   ],
@@ -93,19 +93,19 @@ router.post(
     }
     if (!req.auth) return res.status(401).json({ error: 'Token manquant ou invalide' });
 
-    const userId    = req.auth.sub;
+    const userId = req.auth.sub;
     const accountId = parseInt(req.body.account_id, 10);
     const { type, amount, description = null } = req.body;
 
-    try { 
+    try {
       const { rowCount } = await pool.query(
         'SELECT 1 FROM accounts WHERE id = $1 AND user_id = $2',
-        [accountId,userId]
+        [accountId, userId]
       );
       if (!rowCount) {
         return res.status(403).json({ error: 'Compte non autorisé ou introuvable.' });
       }
- 
+
       const { rows } = await pool.query(
         `INSERT INTO transactions (account_id, amount, type, description)
          VALUES ($1,$2,$3,$4)
@@ -133,7 +133,7 @@ router.put(
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const txId        = parseInt(req.params.id, 10);
+    const txId = parseInt(req.params.id, 10);
     const { amount, description } = req.body;
     try {
       const { rows } = await pool.query(

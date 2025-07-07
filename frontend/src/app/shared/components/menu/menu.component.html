@@ -3,13 +3,20 @@
 </h1>
 
 <ul>
-  @if (keycloak.hasRealmRole('user')) { @for(action of actions; track action) {
+  <li>
+    <button routerLink="/home">Home</button>
+  </li>
+  @if (keycloak.hasRealmRole('user')) { 
+
+    @for(action of actions; track action) {
   <li>
     <button routerLink="{{ action.route }}">
       {{ action.title }}
     </button>
   </li>
-  } } @if (keycloak.hasRealmRole('admin')) {
+  } 
+  
+} @if (keycloak.hasRealmRole('admin')) {
   <li>
     <button routerLink="/dashboard">Dashboard</button>
   </li>

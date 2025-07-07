@@ -9,10 +9,10 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AdminService {
-
   private http = inject(HttpClient);
+  private api = `${environment.apiUrl}/api/admin`;
   private accountsUrl = `${environment.apiUrl}/api/admin/accounts`;
-  private txUrl = `${environment.apiUrl}/api/admin/transactions`;
+  private transactionUrl = `${environment.apiUrl}/api/admin/transactions`;
 
   getAccounts(userId?: string): Observable<Account[]> {
     let params = new HttpParams();
@@ -20,6 +20,24 @@ export class AdminService {
       params = params.set('userId', userId);
     }
     return this.http.get<Account[]>(this.accountsUrl, { params });
+  }
+
+  createAccount(
+    userId: string,
+    currency: string,
+    initialBalance = 0
+  ): Observable<Account> {
+    return this.http.post<Account>(`${this.accountsUrl}`, {
+      userId,
+      currency,
+      balance: initialBalance,
+    });
+  }
+
+  updateAccount(id: number, currency: string): Observable<Account> {
+    return this.http.put<Account>(`${this.accountsUrl}/${id}`, {
+      currency,
+    });
   }
 
   deleteAccount(id: number): Observable<void> {
@@ -37,10 +55,41 @@ export class AdminService {
     if (accountId != null) {
       params = params.set('accountId', accountId.toString());
     }
-    return this.http.get<Transaction[]>(this.txUrl, { params });
+    return this.http.get<Transaction[]>(this.transactionUrl, { params });
+  }
+
+  createTransaction(
+    accountId: number,
+    type: 'deposit' | 'withdraw',
+    amount: number,
+    description?: string
+  ): Observable<Transaction> {
+    return this.http.post<Transaction>(`${this.transactionUrl}`, {
+      account_id: accountId,
+      type,
+      amount,
+      description,
+    });
+  }
+
+  updateTransaction(
+    id: number,
+    amount?: number,
+    description?: string
+  ): Observable<Transaction> {
+    return this.http.put<Transaction>(`${this.transactionUrl}/${id}`, {
+      amount,
+      description,
+    });
   }
 
   deleteTransaction(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.txUrl}/${id}`);
+    return this.http.delete<void>(`${this.transactionUrl}/${id}`);
+  }
+
+  getUsers(): Observable<{ id: string; username: string }[]> {
+    return this.http.get<{ id: string; username: string }[]>(
+      `${this.api}/users`
+    );
   }
 }

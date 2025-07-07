@@ -7,7 +7,7 @@ require('dotenv').config();
 const { checkJwt } = require('./config/keycloak');
 const { requireRole } = require('./config/roles');
 
-const adminRoutes = require('./routes/admin'); 
+const adminRoutes = require('./routes/admin');
 const accountsRoutes = require('./routes/accounts');
 const transactionsRoutes = require('./routes/transactions');
 
@@ -36,12 +36,12 @@ app.use('/api/accounts', checkJwt, accountsRoutes);
 app.use('/api/transactions', checkJwt, transactionsRoutes);
 app.get('/api/profile', checkJwt, (req, res) => {
   const { sub, preferred_username, email, given_name, family_name } = req.auth;
-  res.json({ 
-    userId: sub, 
-    username: preferred_username, 
-    email, 
-    givenName: given_name, 
-    familyName: family_name 
+  res.json({
+    userId: sub,
+    username: preferred_username,
+    email,
+    givenName: given_name,
+    familyName: family_name
   });
 });
 

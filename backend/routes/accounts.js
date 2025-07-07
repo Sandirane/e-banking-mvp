@@ -1,10 +1,10 @@
 const express = require('express');
 const pool = require('../config/db');
-const router  = express.Router();
+const router = express.Router();
 
 // Check account user  
 async function checkOwnership(req, res, next) {
-  const accId  = parseInt(req.params.id, 10);
+  const accId = parseInt(req.params.id, 10);
   const userId = req.auth.sub;
   try {
     const { rowCount, rows } = await pool.query(
@@ -47,11 +47,11 @@ router.get('/', async (req, res) => {
     `, [userId]);
 
     res.json(result.rows.map(r => ({
-      id:         r.id,
-      user_id:    r.user_id,
-      currency:   r.currency,
+      id: r.id,
+      user_id: r.user_id,
+      currency: r.currency,
       created_at: r.created_at,
-      balance:    parseFloat(r.balance)
+      balance: parseFloat(r.balance)
     })));
   } catch (err) {
     console.error(err);
@@ -62,17 +62,17 @@ router.get('/', async (req, res) => {
 // POST /api/accounts
 router.post('/', async (req, res) => {
   if (!req.auth) return res.status(401).json({ error: 'Missing token payload' });
-  const userId          = req.auth.sub;
+  const userId = req.auth.sub;
   const { balance = 0, currency = 'EUR' } = req.body;
 
   const client = await pool.connect();
   try {
-    await client.query('BEGIN'); 
+    await client.query('BEGIN');
     const { rows } = await client.query(
       'INSERT INTO accounts (user_id, currency) VALUES ($1, $2) RETURNING *',
       [userId, currency]
     );
-    const account = rows[0]; 
+    const account = rows[0];
     if (balance > 0) {
       await client.query(
         `INSERT INTO transactions (account_id, amount, type, description)
@@ -83,9 +83,9 @@ router.post('/', async (req, res) => {
 
     await client.query('COMMIT');
     res.status(201).json({
-      id:         account.id,
-      user_id:    account.user_id,
-      currency:   account.currency,
+      id: account.id,
+      user_id: account.user_id,
+      currency: account.currency,
       created_at: account.created_at,
       balance
     });
@@ -124,11 +124,11 @@ router.get('/:id', checkOwnership, async (req, res) => {
 
     const row = rows[0];
     res.json({
-      id:         row.id,
-      user_id:    row.user_id,
-      currency:   row.currency,
+      id: row.id,
+      user_id: row.user_id,
+      currency: row.currency,
       created_at: row.created_at,
-      balance:    parseFloat(row.balance)
+      balance: parseFloat(row.balance)
     });
   } catch (err) {
     console.error(err);
@@ -138,7 +138,7 @@ router.get('/:id', checkOwnership, async (req, res) => {
 
 // PUT /api/accounts/:id
 router.put('/:id', checkOwnership, async (req, res) => {
-  const accId    = parseInt(req.params.id, 10);
+  const accId = parseInt(req.params.id, 10);
   const { currency } = req.body;
   try {
     const { rows } = await pool.query(

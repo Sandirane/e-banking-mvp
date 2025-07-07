@@ -1,29 +1,163 @@
-<h2>Dashboard Admin</h2>
+<h2>ADMIN DASHBOARD</h2>
+
 <section>
-  <h3>Comptes</h3>
-  @if(accounts) {
-  <ul>
-    @for(a of accounts; track a) {
-    <li>
-      {{ a.id }} - {{ a.user_id }} - {{ a.currency }} - {{ a.created_at }}
-      <button (click)="onDeleteAccount(a.id)">Supprimer</button>
-    </li>
-    }
-  </ul>
-  }
+  <h3>Tous les comptes</h3>
+
+  <h3>Créer un compte</h3>
+  <form (ngSubmit)="onCreateAccount()">
+    <select name="userId" required [(ngModel)]="newAccountUserId">
+      <option value="" disabled>— Sélectionnez un user —</option>
+      @for(u of users; track u.id){
+      <option [value]="u.id">{{ u.username }} ({{ u.id }})</option>
+      }
+    </select>
+    <input
+      placeholder="Devise"
+      [(ngModel)]="newAccountCurrency"
+      name="currency"
+      required
+    />
+    <input
+      type="number"
+      placeholder="Solde initial"
+      [(ngModel)]="newAccountBalance"
+      name="balance"
+    />
+    <button type="submit">Créer</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Devise</th>
+        <th>Créé le</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(account of accounts; track account.id) {
+      <tr>
+        <td>{{ account.id }}</td>
+        <td>{{ account.user_id }}</td>
+        @if(editAccountId !== account.id) {
+        <td>{{ account.currency }}</td>
+        } @if(editAccountId === account.id) {
+        <td>
+          <input
+            [(ngModel)]="editAccountCurrency"
+            name="editCurrency_{{ account.id }}"
+          />
+        </td>
+        }
+        <td>{{ account.created_at | date : "short" }}</td>
+        <td>
+          @if(editAccountId !== account.id){
+          <button (click)="startEditAccount(account)">Modifier</button>
+          } @if(editAccountId === account.id){
+          <button (click)="onUpdateAccount()">Sauvegarder</button>
+          }
+          <button (click)="onDeleteAccount(account.id)">Supprimer</button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
 </section>
 
 <section>
-  <h3>Transactions</h3>
-  @if(transactions) {
-  <ul>
-    @for(t of transactions; track t) {
-    <li>
-      {{ t.id }} - Acc:{{ t.account_id }} - {{ t.type }} {{ t.amount }}€ -
-      {{ t.created_at }}
-      <button (click)="onDeleteTransaction(t.id)">Supprimer</button>
-    </li>
-    }
-  </ul>
-  }
+  <h3>Toutes les transactions</h3>
+  <form (ngSubmit)="onCreateTransaction()">
+    <select
+      name="transactionAccountId"
+      required
+      [(ngModel)]="newTransactionAccountId"
+    >
+      <option [value]="0" disabled>— Sélectionnez un compte —</option>
+      @for (a of accounts; track a.id) {
+      <option [value]="a.id">
+        {{ a.user_id }} → Compte #{{ a.id }} ({{ a.currency }})
+      </option>
+      }
+    </select>
+
+    <select [(ngModel)]="newTransactionType" name="transactionType">
+      <option value="deposit">Dépôt</option>
+      <option value="withdraw">Retrait</option>
+    </select>
+
+    <input
+      type="number"
+      step="0.01"
+      [(ngModel)]="newTransactionAmount"
+      name="transactionAmount"
+      placeholder="Montant"
+      required
+    />
+    <input
+      [(ngModel)]="newTransactionDesc"
+      name="transactionDesc"
+      placeholder="Description"
+    />
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Compte</th>
+        <th>Montant</th>
+        <th>Type</th>
+        <th>Desc.</th>
+        <th>Créé le</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(transaction of transactions; track transaction.id) {
+      <tr>
+        <td>{{ transaction.id }}</td>
+        <td>{{ transaction.account_id }}</td>
+        @if(editTransactionId !== transaction.id) {
+        <td>
+          {{ transaction.amount }}
+        </td>
+        } @if(editTransactionId === transaction.id) {
+        <td>
+          <input
+            [(ngModel)]="editTransactionAmount"
+            name="amt_{{ transaction.id }}"
+          />
+        </td>
+        }
+        <td>{{ transaction.type }}</td>
+        @if(editTransactionId !== transaction.id){
+        <td>
+          {{ transaction.description }}
+        </td>
+        } @if(editTransactionId === transaction.id){
+        <td>
+          <input
+            [(ngModel)]="editTransactionDesc"
+            name="desc_{{ transaction.id }}"
+          />
+        </td>
+        }
+        <td>{{ transaction.created_at | date : "short" }}</td>
+        <td>
+          @if(editTransactionId !== transaction.id) {
+          <button (click)="startEditTransaction(transaction)">Modifier</button>
+          } @if(editTransactionId === transaction.id){
+          <button (click)="onUpdateTransaction()">Sauvegarder</button>
+          }
+          <button (click)="onDeleteTransaction(transaction.id)">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
 </section>

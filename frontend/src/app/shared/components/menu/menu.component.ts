@@ -17,10 +17,8 @@ interface Action {
 })
 export class MenuComponent {
   public keycloak = inject(Keycloak);
-  
 
-  actions: Array<Action> = [
-    { title: 'Home', route: '/home' },
+  actions: Array<Action> = [ 
     { title: 'Comptes', route: '/accounts' },
     { title: 'Transactions', route: '/transactions' },
   ];
