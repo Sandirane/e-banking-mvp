@@ -1,11 +1,78 @@
 <h2>Mes Transactions</h2>
 
-<ul *ngIf="transactions$ | async as transactions">
-  @for(transaction of transactions; track transaction) {
-  <li>
-    ID: {{ transaction.id }}, Account ID: {{ transaction.account_id }}, Amount:
-    {{ transaction.amount }}, Type: {{ transaction.type }}, Description:
-    {{ transaction.description }}, Created DATE: {{ transaction.created_at }},
-  </li>
-  }
-</ul>
+@if(!isLoading && errorMessage) {
+<div>{{ errorMessage }}</div>
+}
+
+<form (ngSubmit)="onCreateTransaction()">
+  <select [(ngModel)]="selectedAccountId" name="account" required>
+    <option [ngValue]="undefined" disabled>— Choisir compte —</option>
+    @for(a of accounts; track a.id){
+    <option [value]="a.id">Compte #{{ a.id }} ({{ a.currency }})</option>
+    }
+  </select>
+
+  <select [(ngModel)]="type" name="type">
+    <option value="deposit">Dépôt</option>
+    <option value="withdraw">Retrait</option>
+  </select>
+
+  <input
+    type="number"
+    step="0.01"
+    [(ngModel)]="amount"
+    name="amount"
+    placeholder="Montant"
+    required
+  />
+  <input [(ngModel)]="description" name="desc" placeholder="Description" />
+  <button type="submit">Envoyer</button>
+</form>
+
+@if(isLoading) {
+<div>Chargement…</div>
+} @else {
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Compte</th>
+      <th>Montant</th>
+      <th>Type</th>
+      <th>Desc.</th>
+      <th>Créé le</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for(transaction of transactions; track transaction.id){
+    <tr>
+      <td>{{ transaction.id }}</td>
+      <td>{{ transaction.account_id }}</td>
+      @if(editTransactionId !== transaction.id){
+      <td>{{ transaction.amount }}</td>
+      } @if(editTransactionId === transaction.id){
+      <td>
+        <input [(ngModel)]="editAmount" name="amt_{{ transaction.id }}" />
+      </td>
+      }
+      <td>{{ transaction.type }}</td>
+      @if(editTransactionId !== transaction.id){
+      <td>{{ transaction.description }}</td>
+      } @if(editTransactionId === transaction.id){
+      <td><input [(ngModel)]="editDesc" name="desc_{{ transaction.id }}" /></td>
+      }
+      <td>{{ transaction.created_at | date : "short" }}</td>
+      <td>
+        @if(editTransactionId !== transaction.id){
+        <button (click)="startEdit(transaction)">Modifier</button>
+        } @if(editTransactionId === transaction.id){
+        <button (click)="onUpdateTransaction()">Sauvegarder</button>
+        }
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
+
+}

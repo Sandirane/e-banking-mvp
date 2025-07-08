@@ -2,17 +2,51 @@
 
 @if(isLoading) {
 <div>Chargement…</div>
-} 
-@if(!isLoading && errorMessage) {
+} @if(!isLoading && errorMessage) {
 <div>{{ errorMessage }}</div>
 }
 
-<ul *ngIf="accounts$ | async as accounts">
+<section class="form-create">
+  <h3>Ouvrir un nouveau compte</h3>
+  <form (ngSubmit)="addAccount()">
+    <input
+      type="number"
+      [(ngModel)]="newBalance"
+      name="newBalance"
+      placeholder="Solde initial"
+      required
+    />
+    <input
+      [(ngModel)]="newCurrency"
+      name="newCurrency"
+      placeholder="Devise (ex: EUR)"
+      required
+    />
+    <button type="submit">Créer</button>
+  </form>
+</section>
+
+<table *ngIf="accounts$ | async as accounts">
+  <tr>
+    <th>ID</th>
+    <th>USER ID</th>
+    <th>Solde</th>
+    <th>Currency</th>
+    <th>Created DATE</th>
+    <th>Actions</th>
+  </tr>
   @for(account of accounts; track account) {
-  <li>
-    ID: {{ account.id }}, USER ID: {{ account.user_id }}, Solde:
-    {{ account.balance }} €, Currency: {{ account.currency }}, Created DATE:
-    {{ account.created_at }}
-  </li>
+  <tr>
+    <td>{{ account.id }}</td>
+    <td>{{ account.user_id }}</td>
+    <td>{{ account.balance }} €</td>
+    <td>{{ account.currency }}</td>
+    <td>{{ account.created_at | date : "short" }}</td>
+    <td>
+      @if(account.balance === 0){
+      <button (click)="removeAccount(account.id)">Supprimer</button>
+      }
+    </td>
+  </tr>
   }
-</ul>
+</table>
