@@ -7,7 +7,7 @@ require('dotenv').config();
 const { checkJwt } = require('./config/keycloak');
 const { requireRole } = require('./config/roles');
 
-const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin/index');
 const accountsRoutes = require('./routes/user/accounts');
 const transactionsRoutes = require('./routes/user/transactions');
 
