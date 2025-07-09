@@ -8,8 +8,8 @@ const { checkJwt } = require('./config/keycloak');
 const { requireRole } = require('./config/roles');
 
 const adminRoutes = require('./routes/admin');
-const accountsRoutes = require('./routes/accounts');
-const transactionsRoutes = require('./routes/transactions');
+const accountsRoutes = require('./routes/user/accounts');
+const transactionsRoutes = require('./routes/user/transactions');
 
 const pool = require('./config/db');
 

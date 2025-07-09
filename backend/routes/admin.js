@@ -1,4 +1,4 @@
-// backend/routes/admin.js
+// backend/routes/admin/admin.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
