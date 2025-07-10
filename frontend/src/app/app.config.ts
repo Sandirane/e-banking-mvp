@@ -13,6 +13,10 @@ import {
 
 import { routes } from './app.routes';
 import { provideKeycloakConfig } from '@core/keycloak/keycloak.config';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { providePrimeNG } from 'primeng/config';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import Aura from '@primeng/themes/aura';
 
 const url = createInterceptorCondition<IncludeBearerTokenCondition>({
   urlPattern: /^http:\/\/localhost:3000\/api\/.*/,
@@ -22,6 +26,14 @@ const url = createInterceptorCondition<IncludeBearerTokenCondition>({
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    ConfirmationService,
+    MessageService,
+    provideAnimations(),
+    providePrimeNG({
+      theme: {
+        preset: Aura
+      }
+    }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),

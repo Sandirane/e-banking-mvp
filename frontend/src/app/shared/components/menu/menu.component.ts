@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 
 import Keycloak from 'keycloak-js';
 
+import { ButtonModule } from 'primeng/button';
+
 interface Action {
   title: string;
   route: string;
@@ -11,7 +13,7 @@ interface Action {
 
 @Component({
   selector: 'app-menu',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss',
 })
