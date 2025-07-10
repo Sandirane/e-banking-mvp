@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: E-Banking MVP API
+  version: 1.0.0
+  description: |
+    API de gestion de comptes et de transactions pour un système e-banking.
+    **Sécurité** : JWT Keycloak, bearer auth.
+
+servers:
+  - url: http://localhost:3000/api
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+          format: uuid
+        currency:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        balance:
+          type: number
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [deposit, withdraw]
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        givenName:
+          type: string
+        familyName:
+          type: string
+
+    NewAccount:
+      type: object
+      required: [currency]
+      properties:
+        currency:
+          type: string
+        balance:
+          type: number
+          default: 0
+
+    NewTransaction:
+      type: object
+      required: [account_id, type, amount]
+      properties:
+        account_id:
+          type: integer
+        type:
+          type: string
+          enum: [deposit, withdraw]
+        amount:
+          type: number
+        description:
+          type: string
+paths:
+  /accounts:
+    get:
+      summary: Lister ses comptes
+      responses:
+        '200':
+          description: Liste des comptes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+    post:
+      summary: Créer un nouveau compte
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAccount'
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+
+  /accounts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Détail d'un compte
+      responses:
+        '200':
+          description: Détail du compte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    put:
+      summary: Mettre à jour la devise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currency:
+                  type: string
+      responses:
+        '200':
+          description: Compte mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    delete:
+      summary: Supprimer un compte vide
+      responses:
+        '204':
+          description: Supprimé
+
+  /transactions:
+    get:
+      summary: Lister ses transactions
+      parameters:
+        - name: account_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+    post:
+      summary: Créer une transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTransaction'
+      responses:
+        '201':
+          description: Transaction créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /transactions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      summary: Mettre à jour une transaction
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Transaction mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+    delete:
+      summary: Supprimer une transaction
+      responses:
+        '204':
+          description: Supprimée
+
+  /profile:
+    get:
+      summary: Récupérer le profil de l'utilisateur
+      responses:
+        '200':
+          description: Profil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+  /admin/accounts:
+    get:
+      summary: Lister tous les comptes (admin)
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+    post:
+      summary: Créer un compte (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                currency:
+                  type: string
+                balance:
+                  type: number
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+
+  /admin/accounts/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+    put:
+      summary: Mettre à jour compte (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currency:
+                  type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    delete:
+      summary: Supprimer compte (admin)
+      responses:
+        '204':
+          description: Supprimé
+
+  /admin/transactions:
+    get:
+      summary: Lister toutes les transactions (admin)
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: accountId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+    post:
+      summary: Créer transaction (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTransaction'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /admin/transactions/{id}:
+    parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+    put:
+      summary: Mettre à jour transaction (admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                description:
+                  type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+    delete:
+      summary: Supprimer transaction (admin)
+      responses:
+        '204':
+          description: Supprimée
+
+  /admin/users:
+    get:
+      summary: Lister tous les utilisateurs Keycloak (admin)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    username:
+                      type: string
+                    email:
+                      type: string
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string

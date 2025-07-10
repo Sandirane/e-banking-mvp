@@ -15,11 +15,17 @@ const pool = require('./config/db');
 
 const app = express();
 
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const apiDoc = YAML.load('./docs/openapi.yaml');
+
 app.use(cors({
   origin: 'http://localhost:4200',
   credentials: true
 }));
 app.use(express.json());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDoc));
 
 // global log
 app.use((req, res, next) => {
@@ -63,3 +69,5 @@ app.use((err, req, res, next) => {
 // server run port 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+
