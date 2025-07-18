@@ -3,10 +3,27 @@ import { AccountService } from '@core/services/account.service';
 import { tap, catchError, of, finalize } from 'rxjs';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { Button } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Message } from 'primeng/message';
 
 @Component({
   selector: 'app-account',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    InputTextModule,
+    CardModule,
+    DialogModule,
+    Button,
+    ProgressSpinnerModule,
+    Message,
+  ],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss',
 })
@@ -19,6 +36,8 @@ export class AccountComponent {
   newBalance = 0;
   editingId?: number;
   editCurrency = '';
+
+  displayModal = false;
 
   accounts$ = this.accountService.getAccounts().pipe(
     tap(() => (this.errorMessage = null)),
@@ -39,6 +58,7 @@ export class AccountComponent {
           this.accounts$ = this.accountService.getAccounts();
           this.newBalance = 0;
           this.newCurrency = 'EUR';
+          this.displayModal = false;
         },
         error: () => (this.errorMessage = 'Échec de la création.'),
       });

@@ -5,11 +5,28 @@ import { Account } from '@core/models/account';
 import { Transaction } from '@core/models/transaction';
 import { AccountService } from '@core/services/account.service';
 import { TransactionService } from '@core/services/transaction.service';
+import { Button } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
 import { catchError, of, finalize } from 'rxjs';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Message } from 'primeng/message'; 
 
 @Component({
   selector: 'app-transaction',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    InputTextModule,
+    CardModule,
+    DialogModule,
+    Button,
+    ProgressSpinnerModule,
+    Message, 
+  ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
 })
@@ -31,6 +48,8 @@ export class TransactionComponent implements OnInit {
   editTransactionId?: number;
   editAmount = 0;
   editDesc = '';
+
+  displayModal = false;
 
   ngOnInit() {
     this.loadAccounts();
@@ -70,6 +89,7 @@ export class TransactionComponent implements OnInit {
           this.selectedAccountId = 0;
           this.amount = 0;
           this.description = '';
+          this.displayModal = false;
         },
         error: (err) =>
           (this.errorMessage = err.error?.error || 'Erreur création'),

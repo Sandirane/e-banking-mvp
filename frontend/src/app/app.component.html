@@ -1,15 +1,11 @@
 <div class="flex min-h-screen flex-column">
-  <div class="flex flex-1">
-    <aside class="w-16rem surface-200 p-3 shadow-2">
-      <app-menu />
-    </aside>
+  <app-menu />
 
-    <main class="flex-1 p-4">
-      <router-outlet />
-    </main>
-  </div>
+  <main class="flex-1 p-4">
+    <router-outlet />
+  </main>
 
-  <footer class="surface-100 p-3 text-center border-top-1 border-gray-300">
+  <footer class="surface-100 text-center border-gray-300">
     <app-footer />
   </footer>
 </div>

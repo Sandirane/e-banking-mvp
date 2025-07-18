@@ -1,0 +1,33 @@
+<div class="flex flex-column md:flex-row border-round bg-gray-100 p-3 m-3 gap-3">
+ 
+  <div class="w-full md:w-8 p-3 flex flex-column justify-content-center">
+    <div *ngIf="accounts$ | async as accounts">
+  
+      @for(account of accounts; track account) {
+ 
+        <p-card
+          header="Solde disponible pour le compte {{ account.id }}"
+          styleClass="shadow-3 border-round p-card-info mb-3 w-full"
+        >
+          <div class="flex align-items-center justify-content-between">
+            <i class="pi pi-wallet text-3xl text-primary"></i>
+            <span class="text-2xl font-bold text-primary">
+              {{ account.balance }} €
+            </span>
+          </div>
+        </p-card>
+        
+      }
+    </div>
+  </div>
+ 
+  <div class="w-full md:w-4 p-3 flex align-items-center justify-content-center">
+    <p-chart
+      type="pie"
+      [data]="chartData"
+      [options]="chartOptions"
+      styleClass="w-full"
+    />
+  </div>
+
+</div>

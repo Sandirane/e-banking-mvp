@@ -1,0 +1,15 @@
+.menu-list {
+  list-style: none;
+  padding: 0;
+}
+
+.menu-list li {
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.menu-list li:hover {
+  background: #f0f0f0;
+}
+ 

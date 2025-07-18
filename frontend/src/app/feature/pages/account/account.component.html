@@ -1,52 +1,150 @@
-<h2>Mes Comptes</h2>
+<div class="grid">
+  <div class="col">
+    <div class="text-center p-3 border-round-sm bg-white font-bold">
+      <h2>Mes Comptes</h2>
 
-@if(isLoading) {
-<div>Chargement…</div>
-} @if(!isLoading && errorMessage) {
-<div>{{ errorMessage }}</div>
-}
-
-<section class="form-create">
-  <h3>Ouvrir un nouveau compte</h3>
-  <form (ngSubmit)="addAccount()">
-    <input
-      type="number"
-      [(ngModel)]="newBalance"
-      name="newBalance"
-      placeholder="Solde initial"
-      required
-    />
-    <input
-      [(ngModel)]="newCurrency"
-      name="newCurrency"
-      placeholder="Devise (ex: EUR)"
-      required
-    />
-    <button type="submit">Créer</button>
-  </form>
-</section>
-
-<table *ngIf="accounts$ | async as accounts">
-  <tr>
-    <th>ID</th>
-    <th>USER ID</th>
-    <th>Solde</th>
-    <th>Currency</th>
-    <th>Created DATE</th>
-    <th>Actions</th>
-  </tr>
-  @for(account of accounts; track account) {
-  <tr>
-    <td>{{ account.id }}</td>
-    <td>{{ account.user_id }}</td>
-    <td>{{ account.balance }} €</td>
-    <td>{{ account.currency }}</td>
-    <td>{{ account.created_at | date : "short" }}</td>
-    <td>
-      @if(account.balance === 0){
-      <button (click)="removeAccount(account.id)">Supprimer</button>
+      @if(isLoading) {
+      <div><p-progress-spinner ariaLabel="loading" /></div>
       }
-    </td>
-  </tr>
+    </div>
+  </div>
+</div>
+
+<p-card>
+  @if(!isLoading && errorMessage) {
+  <p-message severity="error">{{ errorMessage }}</p-message>
+  } @else {
+  <div class="surface-card p-4 shadow-2 border-round">
+    <p-table
+      #dt1
+      *ngIf="accounts$ | async as accounts"
+      [value]="accounts"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [globalFilterFields]="['id', 'user_id', 'currency']"
+      [responsiveLayout]="'scroll'"
+      sortMode="multiple"
+    >
+      <ng-template #caption>
+        <div class="grid">
+          <div class="col">
+            <div class="app-section-header">
+              <input
+                pInputText
+                type="text"
+                (input)="
+                  dt1.filterGlobal($any($event.target).value, 'contains')
+                "
+                placeholder="Recherche globale"
+              />
+            </div>
+          </div>
+          <div class="col">
+            <div class="app-section-header">
+              <p-button
+                pButton
+                [raised]="true"
+                type="button"
+                label="Ouvrir un compte"
+                icon="pi pi-plus"
+                (click)="displayModal = true"
+                class="mb-3"
+              />
+
+              <p-dialog
+                header="Créer un nouveau compte"
+                [(visible)]="displayModal"
+                [modal]="true"
+                [closable]="true"
+                [style]="{ width: '400px' }"
+              >
+                <form (ngSubmit)="addAccount()" #form="ngForm">
+                  <div class="p-fluid">
+                    <div class="field">
+                      <label for="newBalance">Solde initial</label>
+                      <input
+                        class="form-input"
+                        id="newBalance"
+                        type="number"
+                        pInputText
+                        [(ngModel)]="newBalance"
+                        name="newBalance"
+                        required
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label for="newCurrency">Devise</label>
+                      <input
+                        class="form-input"
+                        id="newCurrency"
+                        type="text"
+                        pInputText
+                        [(ngModel)]="newCurrency"
+                        name="newCurrency"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <p-button
+                    pButton
+                    type="button"
+                    label="Annuler"
+                    class="p-button-text"
+                    (click)="displayModal = false"
+                  />
+                  <p-button
+                    pButton
+                    type="submit"
+                    label="Créer"
+                    [disabled]="form.invalid"
+                  />
+                </form>
+                
+              </p-dialog>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+          <th pSortableColumn="user_id">
+            USER ID <p-sortIcon field="user_id"></p-sortIcon>
+          </th>
+          <th pSortableColumn="balance">
+            Solde <p-sortIcon field="balance"></p-sortIcon>
+          </th>
+          <th pSortableColumn="currency">
+            Devise <p-sortIcon field="currency"></p-sortIcon>
+          </th>
+          <th>Création</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-account>
+        <tr>
+          <td>{{ account.id }}</td>
+          <td>{{ account.user_id }}</td>
+          <td>{{ account.balance }} €</td>
+          <td>{{ account.currency }}</td>
+          <td>{{ account.created_at | date : "short" }}</td>
+          <td>
+            <button
+              *ngIf="account.balance === 0"
+              (click)="removeAccount(account.id)"
+              class="p-button-danger p-button-sm"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
   }
-</table>
+</p-card>

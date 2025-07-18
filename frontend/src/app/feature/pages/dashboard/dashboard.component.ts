@@ -4,10 +4,29 @@ import { FormsModule } from '@angular/forms';
 import { Account } from '@core/models/account';
 import { Transaction } from '@core/models/transaction';
 import { AdminService } from '@core/services/admin.service';
+import { TabsModule } from 'primeng/tabs';
+import { CardModule } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    TabsModule,
+    FormsModule,
+    CardModule,
+    TableModule,
+    InputTextModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    Button,
+    Message,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -34,6 +53,8 @@ export class DashboardComponent implements OnInit {
   editTransactionDesc = '';
 
   users: { id: string; username: string }[] = [];
+
+  displayModal = false;
 
   ngOnInit() {
     this.adminService

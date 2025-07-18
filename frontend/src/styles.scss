@@ -1,10 +1,35 @@
 /* You can add global styles to this file, and also import other style files */
-@import "primeflex/primeflex.css"; 
+@import "primeflex/primeflex.css";
 @import "primeicons/primeicons.css";
 
 body {
     font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: ffffff !important;
+    background-color: #D0D0D0 !important;
+} 
+
+.app-section-header {
+  text-align: center;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+}
+
+.form-input {
+  font-size: 1rem;                 
+  color: #212529;                  
+  background-color: #ffffff;       
+  padding: 0.5rem;                 
+  border-width: 1px;              
+  border-style: solid;           
+  border-color: #ced4da;        
+  border-radius: 0.25rem;         
+  appearance: none;               
+  outline: none;                 
+  width: 100%;                   
+}
+
+.form-input:focus {
+  border-color: #3b82f6;          
 }

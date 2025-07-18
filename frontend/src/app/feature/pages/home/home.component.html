@@ -1,2 +1,10 @@
-<h1>Bienvenue dans l'e-Banking</h1>
-<p>Accédez à votre profil, vos comptes, vos transactions.</p>
+<div class="p-d-flex p-jc-center p-ai-center">
+  <p-card header="Bienvenue dans l'e-Banking" styleClass="p-shadow-4">
+    <p class="m-0">Accédez à votre profil, vos comptes, vos transactions.</p>
+  </p-card>
+</div>
+ @if (keycloak.hasRealmRole('user')) {
+<div class="p-3">
+  <app-monitor-account />
+</div>
+ }
