@@ -10,6 +10,8 @@
   </div>
 </div>
 
+<p-toast />
+
 <p-card>
   @if(!isLoading && errorMessage) {
   <p-message severity="error">{{ errorMessage }}</p-message>
@@ -89,6 +91,7 @@
                   </div>
 
                   <p-button
+                    severity="secondary"
                     pButton
                     type="button"
                     label="Annuler"
@@ -102,7 +105,6 @@
                     [disabled]="form.invalid"
                   />
                 </form>
-                
               </p-dialog>
             </div>
           </div>

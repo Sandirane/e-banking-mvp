@@ -11,6 +11,8 @@ import {
   CreateAccountModalComponent,
   CreateAccountData,
 } from '../create-account-modal/create-account-modal.component';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-accounts-tab',
@@ -19,12 +21,14 @@ import {
     CardModule,
     AccountTableComponent,
     CreateAccountModalComponent,
+    Toast,
   ],
   templateUrl: './accounts-tab.component.html',
   styleUrl: './accounts-tab.component.scss',
 })
 export class AccountsTabComponent implements OnInit {
   private adminService = inject(AdminService);
+  private messageService = inject(MessageService);
 
   accounts: Account[] = [];
   users: { id: string; username: string }[] = [];
@@ -52,9 +56,24 @@ export class AccountsTabComponent implements OnInit {
   onCreateAccount(data: CreateAccountData) {
     this.adminService
       .createAccount(data.userId, data.currency, data.balance)
-      .subscribe((account) => {
-        this.accounts.unshift(account);
-        this.showCreateModal = false;
+      .subscribe({
+        next: (account) => {
+          this.accounts.unshift(account);
+          this.showCreateModal = false;
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Compte créé',
+            detail: `Le compte de l'utilisateur a été créé.`,
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: `Impossible de créer le compte.`,
+          });
+        },
       });
   }
 
@@ -73,17 +92,44 @@ export class AccountsTabComponent implements OnInit {
   }
 
   private updateAccount(id: number, currency: string) {
-    this.adminService.updateAccount(id, currency).subscribe((updated) => {
-      const index = this.accounts.findIndex((a) => a.id === updated.id);
-      if (index > -1) {
-        this.accounts[index] = updated;
-      }
+    this.adminService.updateAccount(id, currency).subscribe({
+      next: (updated) => {
+        const index = this.accounts.findIndex((a) => a.id === updated.id);
+        if (index > -1) this.accounts[index] = updated;
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Compte modifié',
+          detail: `La devise du compte a été mise à jour.`,
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: `Échec de la mise à jour.`,
+        });
+      },
     });
   }
 
   private deleteAccount(id: number) {
-    this.adminService.deleteAccount(id).subscribe(() => {
-      this.accounts = this.accounts.filter((a) => a.id !== id);
+    this.adminService.deleteAccount(id).subscribe({
+      next: () => {
+        this.accounts = this.accounts.filter((a) => a.id !== id);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Compte supprimé',
+          detail: `Le compte a été supprimé.`,
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: `Impossible de supprimer le compte.`,
+        });
+      },
     });
   }
 }

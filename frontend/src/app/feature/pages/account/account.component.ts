@@ -11,6 +11,9 @@ import { Button } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Message } from 'primeng/message';
 
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
 @Component({
   selector: 'app-account',
   imports: [
@@ -23,12 +26,15 @@ import { Message } from 'primeng/message';
     Button,
     ProgressSpinnerModule,
     Message,
+    Toast,
   ],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss',
 })
 export class AccountComponent {
   private accountService = inject(AccountService);
+  private messageService = inject(MessageService);
+
   isLoading = true;
   errorMessage: string | null = null;
 
@@ -59,19 +65,43 @@ export class AccountComponent {
           this.newBalance = 0;
           this.newCurrency = 'EUR';
           this.displayModal = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Compte créé avec succès !',
+          });
         },
-        error: () => (this.errorMessage = 'Échec de la création.'),
+        error: () => {
+          this.errorMessage = 'Échec de la création.';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Échec de la création du compte.',
+          });
+        },
       });
   }
 
   removeAccount(id: number) {
     this.accountService.deleteAccount(id).subscribe({
       next: () => {
+        this.accounts$ = this.accountService.getAccounts();
         this.errorMessage = null;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Compte supprimé',
+          detail: `Le compte #${id} a été supprimé.`,
+        });
       },
       error: (err) => {
         this.errorMessage =
           err.error?.error || 'Impossible de clôturer ce compte.';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail:
+            this.errorMessage || `Impossible de clôturer le compte #${id}`,
+        });
       },
     });
   }

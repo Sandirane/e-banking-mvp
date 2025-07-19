@@ -12,7 +12,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { catchError, of, finalize } from 'rxjs';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Message } from 'primeng/message'; 
+import { Message } from 'primeng/message';
+
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-transaction',
@@ -25,7 +28,8 @@ import { Message } from 'primeng/message';
     DialogModule,
     Button,
     ProgressSpinnerModule,
-    Message, 
+    Message,
+    Toast,
   ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
@@ -33,6 +37,7 @@ import { Message } from 'primeng/message';
 export class TransactionComponent implements OnInit {
   private transactionService = inject(TransactionService);
   private accountService = inject(AccountService);
+  private messageService = inject(MessageService);
 
   isLoading = true;
   errorMessage: string | null = null;
@@ -90,9 +95,20 @@ export class TransactionComponent implements OnInit {
           this.amount = 0;
           this.description = '';
           this.displayModal = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'La transaction a été créé avec succès !',
+          });
         },
-        error: (err) =>
-          (this.errorMessage = err.error?.error || 'Erreur création'),
+        error: (err) => {
+          this.errorMessage = 'Échec de la transaction.';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Échec de la transaction.',
+          });
+        },
       });
   }
 
@@ -104,15 +120,31 @@ export class TransactionComponent implements OnInit {
 
   onUpdateTransaction() {
     if (!this.editTransactionId) return;
+
     this.transactionService
       .updateTransaction(this.editTransactionId, {
         amount: this.editAmount,
         description: this.editDesc,
       })
-      .subscribe((updated) => {
-        const idx = this.transactions.findIndex((t) => t.id === updated.id);
-        if (idx > -1) this.transactions[idx] = updated;
-        this.editTransactionId = undefined;
+      .subscribe({
+        next: (updated) => {
+          const idx = this.transactions.findIndex((t) => t.id === updated.id);
+          if (idx > -1) this.transactions[idx] = updated;
+          this.editTransactionId = undefined;
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Mise à jour',
+            detail: 'La transaction a été mise à jour avec succès.',
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Impossible de mettre à jour la transaction.',
+          });
+        },
       });
   }
 }

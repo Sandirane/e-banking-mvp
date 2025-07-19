@@ -82,6 +82,7 @@
       <td>
         @if(editTransactionId !== transaction.id) {
         <p-button
+          severity="warn"
           (click)="startEditTransaction(transaction)"
           label="Modifier"
           size="small"
