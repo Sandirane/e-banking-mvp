@@ -1,0 +1,14 @@
+<p-card>
+      <app-account-table
+        [accounts]="accounts"
+        [users]="users"
+        (accountEvent)="onAccountEvent($event)"
+      />
+      
+      <app-create-account-modal
+        [(visible)]="showCreateModal"
+        [users]="users"
+        (accountCreated)="onCreateAccount($event)"
+        (cancelled)="onCreateModalCancel()"
+      />
+    </p-card>

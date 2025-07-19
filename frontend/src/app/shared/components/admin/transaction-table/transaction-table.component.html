@@ -1,0 +1,110 @@
+<p-table
+  #dt2
+  [value]="transactions || []"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  dataKey="id"
+  [paginator]="true"
+  [rows]="5"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [globalFilterFields]="['id', 'account_id', 'amount', 'type', 'description']"
+  sortMode="multiple"
+>
+  <ng-template #caption>
+    <div class="grid">
+      <div class="col">
+        <div class="app-section-header">
+          <input
+            pInputText
+            type="text"
+            (input)="dt2.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Recherche globale"
+          />
+        </div>
+      </div>
+      <div class="col">
+        <p-button
+          pButton
+          [raised]="true"
+          type="button"
+          label="Créer un compte pour une transaction"
+          icon="pi pi-plus"
+          (click)="onCreateTransactionClick()"
+          class="mb-3"
+        />
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th>ID</th>
+      <th>Compte</th>
+      <th>Montant</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Créé le</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-transaction>
+    <tr>
+      <td>{{ transaction.id }}</td>
+      <td>{{ transaction.account_id }}</td>
+      <td>
+        @if(editTransactionId !== transaction.id) {
+        {{ transaction.amount }}
+        } @else {
+        <input
+          [(ngModel)]="editTransactionAmount"
+          name="amt_{{ transaction.id }}"
+          type="number"
+          step="0.01"
+          class="p-inputtext"
+        />
+        }
+      </td>
+      <td>{{ transaction.type }}</td>
+      <td>
+        @if(editTransactionId !== transaction.id) {
+        {{ transaction.description }}
+        } @else {
+        <input
+          [(ngModel)]="editTransactionDesc"
+          name="desc_{{ transaction.id }}"
+          class="p-inputtext"
+        />
+        }
+      </td>
+      <td>{{ transaction.created_at | date : "short" }}</td>
+      <td>
+        @if(editTransactionId !== transaction.id) {
+        <p-button
+          (click)="startEditTransaction(transaction)"
+          label="Modifier"
+          size="small"
+          class="mr-2"
+        >
+        </p-button>
+        } @else {
+        <p-button
+          (click)="saveTransaction()"
+          label="Sauvegarder"
+          size="small"
+          class="mr-2"
+        >
+        </p-button>
+        }
+        <p-button
+          (click)="deleteTransaction(transaction.id)"
+          label="Supprimer"
+          severity="danger"
+          size="small"
+        >
+        </p-button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

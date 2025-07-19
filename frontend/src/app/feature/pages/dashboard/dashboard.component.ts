@@ -1,31 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, OnInit } from '@angular/core'; 
 import { Account } from '@core/models/account';
 import { Transaction } from '@core/models/transaction';
 import { AdminService } from '@core/services/admin.service';
-import { TabsModule } from 'primeng/tabs';
-import { CardModule } from 'primeng/card';
-import { Button } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { Message } from 'primeng/message';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs'; 
+import { AccountsTabComponent } from '@shared/components/admin/accounts-tab/accounts-tab.component';
+import { TransactionsTabComponent } from '@shared/components/admin/transactions-tab/transactions-tab.component';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
     CommonModule,
     TabsModule,
-    FormsModule,
-    CardModule,
-    TableModule,
-    InputTextModule,
-    DialogModule,
-    ProgressSpinnerModule,
-    Button,
-    Message,
+    AccountsTabComponent,
+    TransactionsTabComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

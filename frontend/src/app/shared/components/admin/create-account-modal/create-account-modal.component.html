@@ -1,0 +1,71 @@
+    <p-dialog
+      header="Créer un nouveau compte pour un utilisateur"
+      [(visible)]="visible"
+      [modal]="true"
+      [closable]="true"
+      [style]="{ width: '400px' }"
+      (onHide)="onCancel()"
+    >
+      <form (ngSubmit)="onSubmit()" #form="ngForm">
+        <div class="p-fluid">
+          <div class="field">
+            <label for="userId">Utilisateur</label>
+            <select
+              id="userId"
+              class="form-input"
+              name="userId"
+              required
+              [(ngModel)]="formData.userId"
+            >
+              <option value="" disabled>
+                — Sélectionnez un user —
+              </option>
+              @for(user of users; track user.id) {
+                <option [value]="user.id">
+                  {{ user.username }} ({{ user.id }})
+                </option>
+              }
+            </select>
+          </div>
+          
+          <div class="field">
+            <label for="currency">Devise</label>
+            <input
+              id="currency"
+              class="form-input"
+              placeholder="Devise"
+              [(ngModel)]="formData.currency"
+              name="currency"
+              required
+            />
+          </div>
+          
+          <div class="field">
+            <label for="balance">Solde initial</label>
+            <input
+              id="balance"
+              class="form-input"
+              type="number"
+              step="0.01"
+              placeholder="Solde initial"
+              [(ngModel)]="formData.balance"
+              name="balance"
+            />
+          </div>
+        </div>
+        
+        <div class="flex justify-content-end gap-2 mt-3">
+          <p-button
+            type="button"
+            label="Annuler"
+            severity="secondary"
+            (click)="onCancel()"
+          />
+          <p-button
+            type="submit"
+            label="Créer"
+            [disabled]="form.invalid"
+          />
+        </div>
+      </form>
+    </p-dialog>

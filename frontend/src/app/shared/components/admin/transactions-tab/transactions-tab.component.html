@@ -1,0 +1,14 @@
+<p-card>
+      <app-transaction-table
+        [transactions]="transactions"
+        [accounts]="accounts"
+        (transactionEvent)="onTransactionEvent($event)"
+      />
+      
+      <app-create-transaction-modal
+        [(visible)]="showCreateModal"
+        [accounts]="accounts"
+        (transactionCreated)="onCreateTransaction($event)"
+        (cancelled)="onCreateModalCancel()"
+      />
+    </p-card>
