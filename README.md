@@ -21,6 +21,30 @@ This repository contains a Minimal Viable Product (MVP) for a simple banking app
 
 ---
 
+## Application Preview
+
+Here are some screenshots of the e-Banking MVP in action:
+
+### Login with Keycloak
+![Login Screen](./docs/images/login.png)
+
+### Admin Home
+![Admin Dashboard](./docs/images/admin_home.png)
+
+### Admin Dashboard
+![Admin Dashboard](./docs/images/admin_dashboard.png)
+
+### User Home
+![Accounts Page](./docs/images/user_home.png)
+
+### Account Management
+![Accounts Page](./docs/images/user_account.png)
+
+### Transaction Management
+![Transactions Page](./docs/images/user_transaction.png)
+
+---
+
 ## Folder Structure
 
 ```txt
